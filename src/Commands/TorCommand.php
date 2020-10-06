@@ -175,7 +175,7 @@ class TorCommand extends Command
     private function getStartingPort(): ?int
     {
 
-        $cmd = `netstat -antp | grep tor | grep :95 | awk '{ print $4 }' | cut -d: -f2 | sort -r | head -n 1`;
+        $cmd = `sudo netstat -antp | grep tor | grep :95 | awk '{ print $4 }' | cut -d: -f2 | sort -r | head -n 1`;
 
 
 
