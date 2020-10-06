@@ -22,8 +22,5 @@ class HelperTest extends TestRunner
     {
         $this->assertIsArray( Helper::getToranoArray());
     }
-    public function testGetVpnWithoutCache()
-    {
-        $this->assertIsArray( Helper::getVpnArray());
-    }
+
 }
