@@ -110,7 +110,7 @@ class CheckCommand extends Command
             echo "Cache not reachable\n";
             return false;
         }
-        $cmd = `echo 'g73zwt45x23c94t' | sudo -S ps -A |grep tor`;
+        $cmd = `ps -A |grep tor`;
         if (null === $cmd) {
             echo "PS Command return null\n";
             return false;

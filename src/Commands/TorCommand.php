@@ -136,10 +136,10 @@ class TorCommand extends Command
 
     private function createDirs()
     {
-        shell_exec("sudo mkdir -p " . TorConfig::WORKING_DIR);
-        shell_exec("sudo mkdir -p " . TorConfig::WORKING_DIR . DIRECTORY_SEPARATOR . TorConfig::TOR_CFG);
-        shell_exec("sudo mkdir -p " . TorConfig::WORKING_DIR . DIRECTORY_SEPARATOR . TorConfig::TOR_DATA);
-        shell_exec("sudo chmod -R a+rwx ".TorConfig::WORKING_DIR);
+        shell_exec("mkdir -p " . TorConfig::WORKING_DIR);
+        shell_exec("mkdir -p " . TorConfig::WORKING_DIR . DIRECTORY_SEPARATOR . TorConfig::TOR_CFG);
+        shell_exec("mkdir -p " . TorConfig::WORKING_DIR . DIRECTORY_SEPARATOR . TorConfig::TOR_DATA);
+        shell_exec("chmod -R a+rwx ".TorConfig::WORKING_DIR);
     }
 
     public function createTorConfig($i)
@@ -175,7 +175,7 @@ class TorCommand extends Command
     private function getStartingPort(): ?int
     {
 
-        $cmd = `sudo netstat -antp | grep tor | grep :95 | awk '{ print $4 }' | cut -d: -f2 | sort -r | head -n 1`;
+        $cmd = `netstat -antp | grep tor | grep :95 | awk '{ print $4 }' | cut -d: -f2 | sort -r | head -n 1`;
 
 
 
