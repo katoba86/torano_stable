@@ -39,7 +39,7 @@ class StatusCommand extends Command
         $this->out = $output;
 
         Helper::displayToranos($output,Helper::getToranoArray());
-        Helper::displayVpn($output,Helper::getToranoArray());
+
         return 1;
     }
 

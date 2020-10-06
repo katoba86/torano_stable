@@ -40,25 +40,10 @@ class Connection
 
     private function init()
     {
-        if($this->config->type === Config::TYPE_AUTO){
 
-            if(preg_match("/meinfernbus|flixbus/i",$this->fetch->getUrl())){
-                $this->config->type = Config::TYPE_VPN;
-            }else {
-                $this->config->type = Config::TYPE_DEFAULT;
-            }
-        }
+        $this->config->type = Config::TYPE_TOR;
+        $this->connector = new Torano\Torano();
 
-        switch($this->config->type){
-            case Config::TYPE_VPN:
-                $this->connector = new Vpn();
-                break;
-            case Config::TYPE_TOR:
-                $this->connector = new Torano\Torano();
-                break;
-            default:
-                $this->connector = new Vpn();
-        }
 
 
     }
@@ -88,19 +73,5 @@ class Connection
         $this->config = $config;
         return $this;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

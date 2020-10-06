@@ -74,11 +74,12 @@ class Torano implements ConnectorInterface
             echo "Error: No Cache enabled!";exit;
         }
         $this->proxys = $this->cache->get(TorConfig::SAVE_ARRAY);
-
-        $this->currentProxy = $this->getFreeProxy();
-        if(null === $this->currentProxy){
-           $this->startSingleTorInstanceForCountry();
+        try {
+            $this->currentProxy = $this->getFreeProxy();
+        }catch(ToranoException $e){
+            $this->startSingleTorInstanceForCountry();
         }
+
     }
 
 
@@ -86,9 +87,8 @@ class Torano implements ConnectorInterface
     {
         $country = strtoupper($this->config->country);
         $cmd = "php ".$_SERVER["DOCUMENT_ROOT"]."/main.php torano:tor 1 ".$country;
+        $process = Process::fromShellCommandline($cmd);
 
-
-        $process = new Process($cmd);
         $process->setTimeout(5);
         try {
             $process->run();
@@ -107,7 +107,7 @@ class Torano implements ConnectorInterface
 
         }
         $this->proxys = $this->cache->get(TorConfig::SAVE_ARRAY);
-        if(count($this->proxys) === 0){
+        if(!is_array($this->proxys) || count($this->proxys) === 0){
             echo "Error: No proxys available";exit;
         }
         $this->currentProxy = $this->getFreeProxy();
@@ -187,7 +187,7 @@ class Torano implements ConnectorInterface
 
         if (curl_error($curl)) {
             $this->error = curl_error($curl);
-            echo "<pre>";print_r($this->error);exit;
+
             $output = false;
             $this->success = false;
         }
@@ -215,6 +215,7 @@ class Torano implements ConnectorInterface
 
 
       $this->currentProxy->lastChecked = time();
+
       if($this->success) {
           $this->setProxySuccess($this->currentProxy, $latency);
       }else{
@@ -262,6 +263,9 @@ class Torano implements ConnectorInterface
     public function getFreeProxy():?TorElement
     {
         $proxys = $this->proxys;
+        if(!is_array($proxys)){
+            throw new ToranoException("Torano is not initialized",ToranoException::NOT_INITIALIZED);
+        }
         $list = [];
         foreach($proxys as $index=>$proxy){
             /*@var $proxy TorElement */

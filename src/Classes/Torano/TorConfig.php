@@ -18,7 +18,7 @@ class TorConfig
     const TOR_CONFIG_NAME = "torcfg:id";
 
 
-    const SAVE_TIME = 60*60*24*7;
+    const SAVE_TIME = 60*60*24*7*30*12*12;
 
     const STARTING_SOCKS = 9050;
     const STARTING_SOCKS_CONTROL = 9060;

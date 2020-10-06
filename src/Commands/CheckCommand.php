@@ -11,6 +11,7 @@ use Classes\Torano\TorElement;
 
 use Symfony\Component\Console\Command\Command;
 
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
@@ -19,6 +20,9 @@ use Symfony\Component\Process\Process;
 
 class CheckCommand extends Command
 {
+
+
+    private $restart = true;
 
     /**
      * @var null|OutputInterface
@@ -39,6 +43,7 @@ class CheckCommand extends Command
     protected function configure()
     {
         $this->setName('torano:check');
+        $this->addArgument('norestart', InputArgument::OPTIONAL, 'just check no restart');
     }
 
 
@@ -51,7 +56,7 @@ class CheckCommand extends Command
         foreach ($elements as &$torElement) {
             $this->out->writeln("<info>Update Latency for ".$torElement->getPort()."</info>");
             Helper::updateLatencyAndIp($torElement);
-            $this->out->writeln("<info>Latency for ".$torElement->getLatency()."</info>");
+            $this->out->writeln("<info>Latency is ".$torElement->getLatency()."</info>");
         }
     }
 
@@ -167,7 +172,10 @@ class CheckCommand extends Command
         $baseCache = Helper::getCache();
 
 
-
+        $noRestart = $input->getArgument('norestart');
+        if($noRestart === null){
+            $this->restart = false;
+        }
 
 
         if (!$this->preCheck()) {
@@ -196,8 +204,11 @@ class CheckCommand extends Command
     }
 
 
-    private function restartPort($port)
-    {
+    private function restartPort($port){
+        if(!$this->restart){
+            return true;
+        }
+
         $this->out->writeln("<info>Restart Port\t" . $port . "</info>");
         $port = ($port - TorConfig::STARTING_SOCKS) + TorConfig::STARTING_SOCKS_CONTROL;
         $command = `printf "AUTHENTICATE \"password\"\r\nSIGNAL NEWNYM\r\n" | nc 127.0.0.1 $port > /dev/null 2>&1 &`;

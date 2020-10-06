@@ -98,40 +98,7 @@ class Helper
         return (!is_array($cached))?[]:$cached;
     }
 
-    /**
-     * @param OutputInterface $output
-     * @param $array
-     * @return bool
-     */
-    public static function displayVpn(OutputInterface $output,$array)
-    {
-        if(!is_array($array)){
-            return false;
-        }
 
-        $table = new Table($output);
-        $table->setHeaders(["Identifer","Status","lastChecked","calls","errors","Latency","Country","LastError"]);
-        foreach($array as $element){
-
-            $row = [
-                $element->getName(),
-                $element->getStatusAsString(),
-                ($element->lastChecked!==0)?date("d.m.Y H:i:s",$element->lastChecked):"-",
-                $element->getNumSuccess(),
-                $element->numFailed,
-                ($element->latency!==null)?$element->latency."ms":"-",
-                $element->getCountry(),
-                $element->getLastError()
-
-
-            ];
-            $table->addRow($row);
-        }
-
-
-        $table->render();
-
-    }
 
 
     /**
@@ -239,6 +206,10 @@ class Helper
             if(isset($torData->country_code)) {
                 $torElement->setCountry($torData->country_code);
             }
+            $torInstance->currentProxy = $torElement;
+            $torInstance->finish();
+
+
 
 
 
@@ -249,6 +220,7 @@ class Helper
             $torElement->ip = null;
             $torElement->numFailed+=1;
             $torElement->setLastError("NO IP Fetched");
+
             return;
         }
 

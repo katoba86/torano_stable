@@ -24,7 +24,8 @@ class SimpleTorFetchTest extends TestRunner
         ];
         $test = $this->call($payload);
 
-        $this->assertTrue(strlen($test)>500);
+
+        $this->assertTrue(strlen($test)>500 && preg_match("/Freizeit/",$test));
     }
     /**
      * @test
