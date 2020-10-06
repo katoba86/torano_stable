@@ -2,20 +2,19 @@
   "name": "katoba/torano",
   "description": "Torano Application",
   "require": {
-    "php": ">=7.2.0",
+    "php": ">=7.3.0",
     "symfony/console": "*",
     "symfony/process": "*",
     "desarrolla2/cache":  "*",
     "predis/predis": "*",
-    "vlucas/phpdotenv": "*",
+    "vlucas/phpdotenv": "^v3.6.0",
     "ext-curl": "*",
     "ext-zlib": "*",
     "ext-json": "*",
     "fzaninotto/faker": "*",
     "symfony/error-handler": "*",
     "symfony/phpunit-bridge": "^5.0",
-    "phpunit/phpunit": "^9.0",
-    "php-webdriver/webdriver": "^1.8",
+    "phpunit/phpunit": "^9.4.0",
     "guzzlehttp/guzzle": "^6.5"
   },
   "autoload": {

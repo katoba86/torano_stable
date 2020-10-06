@@ -15,8 +15,10 @@ ini_set("display_errors","on");
 
 
 try {
-    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv = Dotenv\Dotenv::create(__DIR__);
     $dotenv->load();
+
+
 }catch(\Dotenv\Exception\InvalidPathException $e){
     echo "No env File found... Starting auto system detect.\n";
 

@@ -206,41 +206,16 @@ class Ping {
         $timeout = escapeshellcmd($this->timeout);
         $host = escapeshellcmd($this->host);
 
-        // Exec string for Windows-based systems.
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            // -n = number of pings; -i = ttl; -w = timeout (in milliseconds).
-            $exec_string = 'ping -n 1 -i ' . $ttl . ' -w ' . ($timeout * 1000) . ' ' . $host;
-        }
-        // Exec string for Darwin based systems (OS X).
-        else if(strtoupper(PHP_OS) === 'DARWIN') {
-            // -n = numeric output; -c = number of pings; -m = ttl; -t = timeout.
-            $exec_string = 'ping -n -c 1 -m ' . $ttl . ' -t ' . $timeout . ' ' . $host;
-        }
-        // Exec string for other UNIX-based systems (Linux).
-        else {
-            // -n = numeric output; -c = number of pings; -t = ttl; -W = timeout
-            $exec_string = 'ping -n -c 1 -t ' . $ttl . ' -W ' . $timeout . ' ' . $host . ' 2>&1';
-        }
+
+            $exec_string = ' ping -c 4 '.$host.' | tail -1| awk \'{print $4}\' | cut -d \'/\' -f 2';
+
 
         exec($exec_string, $output, $return);
-
-        // Strip empty lines and reorder the indexes from 0 (to make results more
-        // uniform across OS versions).
-        $this->commandOutput = implode( '',$output);
-        $output = array_values(array_filter($output));
-
-        // If the result line in the output is not empty, parse it.
-        if (!empty($output[1])) {
-            // Search for a 'time' value in the result line.
-            $response = preg_match("/time(?:=|<)(?<time>[\.0-9]+)(?:|\s)ms/", $output[1], $matches);
-
-            // If there's a result and it's greater than 0, return the latency.
-            if ($response > 0 && isset($matches['time'])) {
-                $latency = round($matches['time']);
-            }
+        if(is_array($output) && count($output)===1 && strpos($output[0], $host) === false){
+        return round((float)$output[0]);
+        }else{
+            return null;
         }
-
-        return $latency;
     }
 
     /**

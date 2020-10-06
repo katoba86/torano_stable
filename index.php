@@ -3,9 +3,6 @@
 use Classes\Config;
 use Classes\Connection;
 use Classes\Fetch;
-use Classes\Torano\ToranoConnection;
-use Classes\Vpn\Vpn;
-use Symfony\Component\Process\Process;
 
 set_time_limit(30);
 require __DIR__.'/vendor/autoload.php';
@@ -31,10 +28,6 @@ class Torano{
      */
     private $config;
 
-    /**
-     * @var bool
-     */
-    private $dumpCommand = false;
 
     /**
      * @var string
@@ -78,22 +71,8 @@ class Torano{
         }else{
 
             $config = new Config();
-            if(isset($input["config"]["type"])){
-                switch($input["config"]["type"]){
-                    case 'auto':
-                        $config->type = Config::TYPE_AUTO;
-                        break;
-                    case 'tor':
-                        $config->type = Config::TYPE_TOR;
-                        break;
-                    case 'vpn':
-                        $config->type = Config::TYPE_VPN;
-                        break;
-                    default:
-                        $config->type = Config::TYPE_AUTO;
-                        break;
-                }
-            }
+            $config->type = Config::TYPE_TOR;
+
 
             (isset($input["config"]["country"]))    ?$config->country   = $input["config"]["country"]:  null;
             (isset($input["config"]["provider"]))   ?$config->provider  = $input["config"]["provider"]: null;
@@ -122,11 +101,6 @@ class Torano{
         return $this->response;
     }
 
-
-
-
-
-
     /**
      * @return mixed
      */
@@ -154,16 +128,11 @@ class Torano{
 
 
 try {
-    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv = Dotenv\Dotenv::create(__DIR__);
     $dotenv->load();
 }catch(\Dotenv\Exception\InvalidPathException $e){
     echo "No env File found... Starting auto system detect.\n";
-
-
-
     (new \Classes\AutoDetect())->run();
-
-
     exit;
 }
 

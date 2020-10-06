@@ -135,13 +135,14 @@ class Helper
 
 
     /**
-     * @return Predis|FileCache
+     * @return PredisClient|FileCache
      * @throws \RuntimeException
      */
     public static function getCache(){
 
 
         $cacheName = getenv("cache");
+
        if($cacheName === 'redis'){
 
            $client = new PredisClient('tcp://localhost:6379');
@@ -224,10 +225,9 @@ class Helper
             $fetch->setMethod("GET");
             $torInstance->init($config,$fetch);
             $torData = $torInstance->getData();
-
-
-
             $torData = json_decode($torData,false);
+
+
 
             if(!is_object($torData) || !isset($torData->ip)){
                 throw new RuntimeException("Cant optain ip");
@@ -282,7 +282,8 @@ class Helper
 
     private static function getControlUrl()
     {
-        return  getenv("ip")."/ip.php";
+        return "https://api.ipify.org?format=json";
+        //return  getenv("ip")."/ip.php";
     }
 
 

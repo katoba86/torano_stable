@@ -112,5 +112,26 @@ class Fetch
     }
 
 
+    public function addHeader($key,$value):Fetch
+    {
+        if(!is_array($this->headers)){$this->headers=[];}
+        $this->headers[$key] = $value;
+        return $this;
+    }
+
+    public static function buildHeaders(array $headers):array
+    {
+        if(is_array($headers) && count($headers)>=1){
+
+            $oldHeaders=$headers;
+            $headers=[];
+            foreach($oldHeaders as $key=>$value){
+                $headers[]=$key.": ".$value;
+            }
+            return $headers;
+        }
+        return [];
+    }
+
 
 }

@@ -8,8 +8,7 @@ namespace Commands;
 use Classes\Helper;
 use Classes\Torano\TorConfig;
 use Classes\Torano\TorElement;
-use Classes\Vpn\VpnConfig;
-use Classes\Vpn\VpnElement;
+
 use Symfony\Component\Console\Command\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
@@ -159,37 +158,13 @@ class CheckCommand extends Command
     }
 
 
-    /**
-     * @param null|VpnElement[] $vpnArray
-     * @return bool
-     */
-    private function checkVpn($vpnArray):bool
-    {
-        if(!is_array($vpnArray)){
-            return false;
-        }
 
-
-        foreach($vpnArray as &$vpnElement){
-            $vpnElement->selfTest();
-
-        }
-
-
-
-        return true;
-    }
 
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->out = $output;
         $baseCache = Helper::getCache();
-
-
-
-        $this->checkVpn($baseCache->get(VpnConfig::CACHE_VPN_CONNECTION_KEY));
-
 
 
 
