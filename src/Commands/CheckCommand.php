@@ -192,7 +192,7 @@ class CheckCommand extends Command
         //$this->restartFailed();
 
         echo "\n";
-        return 1;
+        return Command::SUCCESS;
     }
 
 

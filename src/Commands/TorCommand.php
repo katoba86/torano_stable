@@ -78,7 +78,7 @@ class TorCommand extends Command
         }
 
         $this->cache->set(TorConfig::SAVE_ARRAY, $this->proxyUrls, TorConfig::SAVE_TIME);
-        return 1;
+        return Command::SUCCESS;
     }
 
 

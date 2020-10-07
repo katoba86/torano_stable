@@ -40,7 +40,7 @@ class StatusCommand extends Command
 
         Helper::displayToranos($output,Helper::getToranoArray());
 
-        return 1;
+        return Command::SUCCESS;
     }
 
 }
