@@ -167,7 +167,7 @@ class Helper
      * @return bool|int
      */
     public static function getPidForPort($port){
-        $command = "sudo ss -pln  |grep tor | grep ".$port;
+        $command = self::addSudo()." ss -pln  |grep tor | grep ".$port;
         $output = exec($command);
         preg_match("/,pid=(\d{2,}),/i",$output,$matches);
         if(count($matches) === 2){
@@ -175,7 +175,11 @@ class Helper
         }
         return false;
     }
-
+    public static function addSudo():string
+    {
+        $pass = getenv('pass');
+        return "echo '".$pass."' | sudo -S ";
+    }
 
     public static function updateLatencyAndIp(TorElement &$torElement){
 

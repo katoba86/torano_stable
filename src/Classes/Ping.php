@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: kaiba
- * Date: 18.02.2017
- * Time: 13:05
- */
 
 namespace Classes;
 
@@ -107,16 +101,7 @@ class Ping {
         return $this->host;
     }
 
-    /**
-     * Set the port (only used for fsockopen method).
-     *
-     * Since regular pings use ICMP and don't need to worry about the concept of
-     * 'ports', this is only used for the fsockopen method, which pings servers by
-     * checking port 80 (by default).
-     *
-     * @param int $port
-     *   Port to use for fsockopen ping (defaults to 80 if not set).
-     */
+
     public function setPort($port) {
         $this->port = $port;
     }
@@ -151,59 +136,14 @@ class Ping {
         return null;
     }
 
-    /**
-     * Ping a host.
-     *
-     * @param string $method
-     *   Method to use when pinging:
-     *     - exec (default): Pings through the system ping command. Fast and
-     *       robust, but a security risk if you pass through user-submitted data.
-     *     - fsockopen: Pings a server on port 80.
-     *     - socket: Creates a RAW network socket. Only usable in some
-     *       environments, as creating a SOCK_RAW socket requires root privileges.
-     *
-     * @throws InvalidArgumentException if $method is not supported.
-     *
-     * @return mixed
-     *   Latency as integer, in ms, if host is reachable or FALSE if host is down.
-     */
-    public function ping($method = 'exec') {
-        $latency = false;
 
-        switch ($method) {
-            case 'exec':
-                $latency = $this->pingExec();
-                break;
-
-            case 'fsockopen':
-                $latency = $this->pingFsockopen();
-                break;
-
-            case 'socket':
-                $latency = $this->pingSocket();
-                break;
-
-            default:
-                throw new \InvalidArgumentException('Unsupported ping method.');
-        }
-
-        // Return the latency.
-        return $latency;
+    public function ping() {
+        return $this->pingExec();;
     }
 
-    /**
-     * The exec method uses the possibly insecure exec() function, which passes
-     * the input to the system. This is potentially VERY dangerous if you pass in
-     * any user-submitted data. Be SURE you sanitize your inputs!
-     *
-     * @return int
-     *   Latency, in ms.
-     */
-    private function pingExec() {
-        $latency = false;
 
-        $ttl = escapeshellcmd($this->ttl);
-        $timeout = escapeshellcmd($this->timeout);
+    private function pingExec() {
+
         $host = escapeshellcmd($this->host);
 
 
@@ -218,102 +158,5 @@ class Ping {
         }
     }
 
-    /**
-     * The fsockopen method simply tries to reach the host on a port. This method
-     * is often the fastest, but not necessarily the most reliable. Even if a host
-     * doesn't respond, fsockopen may still make a connection.
-     *
-     * @return int
-     *   Latency, in ms.
-     */
-    private function pingFsockopen() {
-        $start = microtime(true);
-        // fsockopen prints a bunch of errors if a host is unreachable. Hide those
-        // irrelevant errors and deal with the results instead.
-        $fp = @fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
-        if (!$fp) {
-            $latency = false;
-        }
-        else {
-            $latency = microtime(true) - $start;
-            $latency = round($latency * 1000);
-        }
-        return $latency;
-    }
 
-    /**
-     * The socket method uses raw network packet data to try sending an ICMP ping
-     * packet to a server, then measures the response time. Using this method
-     * requires the script to be run with root privileges, though, so this method
-     * only works reliably on Windows systems and on Linux servers where the
-     * script is not being run as a web user.
-     *
-     * @return int
-     *   Latency, in ms.
-     */
-    private function pingSocket() {
-        // Create a package.
-        $type = "\x08";
-        $code = "\x00";
-        $checksum = "\x00\x00";
-        $identifier = "\x00\x00";
-        $seq_number = "\x00\x00";
-        $package = $type . $code . $checksum . $identifier . $seq_number . $this->data;
-
-        // Calculate the checksum.
-        $checksum = $this->calculateChecksum($package);
-
-        // Finalize the package.
-        $package = $type . $code . $checksum . $identifier . $seq_number . $this->data;
-
-        // Create a socket, connect to server, then read socket and calculate.
-        if ($socket = socket_create(AF_INET, SOCK_RAW, 1)) {
-            socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, array(
-                'sec' => 10,
-                'usec' => 0,
-            ));
-            // Prevent errors from being printed when host is unreachable.
-            @socket_connect($socket, $this->host, null);
-            $start = microtime(true);
-            // Send the package.
-            @socket_send($socket, $package, strlen($package), 0);
-            if (socket_read($socket, 255) !== false) {
-                $latency = microtime(true) - $start;
-                $latency = round($latency * 1000);
-            }
-            else {
-                $latency = false;
-            }
-        }
-        else {
-            $latency = false;
-        }
-        // Close the socket.
-        socket_close($socket);
-        return $latency;
-    }
-
-    /**
-     * Calculate a checksum.
-     *
-     * @param string $data
-     *   Data for which checksum will be calculated.
-     *
-     * @return string
-     *   Binary string checksum of $data.
-     */
-    private function calculateChecksum($data) {
-        if (strlen($data) % 2) {
-            $data .= "\x00";
-        }
-
-        $bit = unpack('n*', $data);
-        $sum = array_sum($bit);
-
-        while ($sum >> 16) {
-            $sum = ($sum >> 16) + ($sum & 0xffff);
-        }
-
-        return pack('n*', ~$sum);
-    }
 }

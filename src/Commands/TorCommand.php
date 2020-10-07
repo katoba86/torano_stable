@@ -36,6 +36,8 @@ class TorCommand extends Command
     protected $cache = null;
 
 
+
+
     protected function configure()
     {
         $this->setName('torano:tor');
@@ -57,8 +59,8 @@ class TorCommand extends Command
 
 
         if (!$this->noKill) {
-            (Process::fromShellCommandline("killall " . TorConfig::TOR_CALL))->run();
-            (Process::fromShellCommandline("rm -rf " . TorConfig::WORKING_DIR))->run();
+            (Process::fromShellCommandline(Helper::addSudo()."killall " . TorConfig::TOR_CALL))->run();
+            (Process::fromShellCommandline(Helper::addSudo()."rm -rf " . TorConfig::WORKING_DIR))->run();
             $inc = 0;
         } else {
             $this->proxyUrls = $this->cache->get(TorConfig::SAVE_ARRAY);
@@ -174,8 +176,8 @@ class TorCommand extends Command
 
     private function getStartingPort(): ?int
     {
-
-        $cmd = `sudo netstat -antp | grep tor | grep :95 | awk '{ print $4 }' | cut -d: -f2 | sort -r | head -n 1`;
+        $s = Helper::addSudo();
+        $cmd = `$s netstat -antp | grep tor | grep :95 | awk '{ print $4 }' | cut -d: -f2 | sort -r | head -n 1`;
 
 
 

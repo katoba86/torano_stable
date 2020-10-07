@@ -39,7 +39,7 @@ try {
     $app->setCatchExceptions(false);
     $app->add(new TorCommand());
     $app->add(new CheckCommand());
-    $app->add(new ResetCommand());
+
 
     $app->add(new StatusCommand());
     $app->run();

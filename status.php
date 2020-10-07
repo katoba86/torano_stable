@@ -30,6 +30,7 @@ if(!is_array($toranos) || count($toranos)===0){
 }
 
 $status = new Status();
+$status->status = "ok";
 $status->num = count($toranos);
 foreach($toranos as $torano){
     $status->ok += $torano->getNumSuccess();
