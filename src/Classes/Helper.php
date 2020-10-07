@@ -89,7 +89,7 @@ class Helper
     }
 
     /**
-     * @return array|null
+     * @return array|null|TorElement[]
      * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public static function getToranoArray():array
