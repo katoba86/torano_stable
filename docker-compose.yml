@@ -1,0 +1,13 @@
+version: '3'
+services:
+  torano:
+    #image: kooldev/php:8.3-nginx
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    container_name: torano
+    ports:
+      - "2043:80"
+    tty: true
+    volumes:
+      - ./:/app

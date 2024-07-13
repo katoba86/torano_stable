@@ -10,20 +10,19 @@ namespace Classes\Torano;
 
 
 use Classes\Config;
-use Classes\ConnectorInterface;
+use Classes\Element;
 use Classes\Fetch;
 use Classes\Helper;
-use Desarrolla2\Cache\Cache;
+use Desarrolla2\Cache;
 use Faker\Factory;
-use Faker\Provider\UserAgent;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
 
-class Torano implements ConnectorInterface
+final class Torano
 {
 
     /**
-     * @var null|Cache
+     * @var null|Cache\AbstractCache
      */
     private $cache = null;
 
@@ -77,57 +76,60 @@ class Torano implements ConnectorInterface
         try {
             $this->currentProxy = $this->getFreeProxy();
         }catch(ToranoException $e){
-            $this->startSingleTorInstanceForCountry();
+            echo $e->getMessage();exit;
         }
 
     }
 
 
-    private function startSingleTorInstanceForCountry()
+
+    public function getData()
     {
-        $country = strtoupper($this->config->country);
-        $cmd = "php ".$_SERVER["DOCUMENT_ROOT"]."/main.php torano:tor 1 ".$country;
-        $process = Process::fromShellCommandline($cmd);
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_CONNECTTIMEOUT => $this->currentProxy->timeout ?? 5,
+            CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5,
+            CURLOPT_PROXY => "socks5://" . $this->currentProxy->getUrl(),
+            CURLOPT_URL => $this->fetch->getUrl(),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => $this->config->timeout,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_POSTFIELDS => $this->fetch->getData(),
 
-        $process->setTimeout(5);
-        try {
-            $process->run();
-        }catch (ProcessTimedOutException $e){
+        ]);
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, strtoupper($this->fetch->getMethod()));
 
-            $this->proxys = $this->cache->get(TorConfig::SAVE_ARRAY);
-            if(count($this->proxys) === 0){
-                echo "Error: No proxys available";exit;
-            }
-            $this->currentProxy = $this->getFreeProxy();
-            if(null === $this->currentProxy){
-                echo "Error: Could not start new proxy";exit;
-            }else{
-                return;
-            }
+        if(is_array($this->fetch->getHeaders()) && count($this->fetch->getHeaders())>0){
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $this->fetch->getHeaders());
+        }
+        $output = curl_exec($curl);
+        if (curl_error($curl)) {
+            $this->error = curl_error($curl);
+            $this->success = false;
+            return null;
+        }
+        $this->lastInfos = curl_getinfo($curl);
+        curl_close($curl);
+        if(empty($output)){
+            $this->success = false;
+            return null;
+        }
+        $this->success = true;
+        return $output;
 
-        }
-        $this->proxys = $this->cache->get(TorConfig::SAVE_ARRAY);
-        if(!is_array($this->proxys) || count($this->proxys) === 0){
-            echo "Error: No proxys available";exit;
-        }
-        $this->currentProxy = $this->getFreeProxy();
-        if(null === $this->currentProxy){
-            echo "Error: Could not start new proxy";exit;
-        }else{
-            return;
-        }
 
 
     }
 
     /**
      * @inheritDoc
+     * @deprecated
      */
-    public function getData()
+    public function Old_getData()
     {
-
-
-
 
         $curl = curl_init($this->fetch->getUrl());
         curl_setopt($curl,CURLOPT_PROXYTYPE,CURLPROXY_SOCKS5);
@@ -161,7 +163,7 @@ class Torano implements ConnectorInterface
 
         $headers = Fetch::buildHeaders($this->fetch->getHeaders());
 
-        if($this->fetch->getContentType() !== null && !empty($this->fetch->getContentType())){
+        if(!empty($this->fetch->getContentType())){
             $headers[] = "Content-Type: ".$this->fetch->getContentType();
         }
 
@@ -193,7 +195,7 @@ class Torano implements ConnectorInterface
         }
         $this->lastInfos = curl_getinfo($curl);
         curl_close($curl);
-        if(false === $output || empty($output)){
+        if(empty($output)){
             return null;
         }
         $this->success = true;
@@ -228,7 +230,7 @@ class Torano implements ConnectorInterface
 
         ///$proxy->setNumCalled($proxy->getNumCalled()+1);
         $proxy->setNumFailed($proxy->getNumFailed()+1);
-        $proxy->setStatus(TorElement::STATUS_WARNING);
+        $proxy->setStatus(Element::STATUS_WARNING);
         if($msg!==null){
             $proxy->setLastError($msg);
         }

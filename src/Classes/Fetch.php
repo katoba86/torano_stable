@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: kaiba
- * Date: 07.06.2019
- * Time: 10:57
- */
 
 namespace Classes;
 
@@ -28,6 +22,10 @@ class Fetch
     {
         return $this->method;
     }
+
+     public function parse(string $input){
+
+     }
 
     /**
      * @param string $method

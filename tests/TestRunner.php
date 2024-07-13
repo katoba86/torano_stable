@@ -23,7 +23,7 @@ abstract class TestRunner extends \PHPUnit\Framework\TestCase
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_TIMEOUT => $timeout,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2,
             CURLOPT_CUSTOMREQUEST => "POST",
             CURLOPT_POSTFIELDS => json_encode($payload),
             CURLOPT_HTTPHEADER => array(

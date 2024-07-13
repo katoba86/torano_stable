@@ -166,7 +166,7 @@ class CheckCommand extends Command
 
 
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output):int
     {
         $this->out = $output;
         $baseCache = Helper::getCache();

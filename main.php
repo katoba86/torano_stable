@@ -30,7 +30,7 @@ function autoDetect(){
 try {
     $dotenv = Dotenv\Dotenv::create(__DIR__);
     $dotenv->load();
-    $dotenv->required(['pass','cache','ip']);
+    $dotenv->required(['cache','ip']);
 
 
 

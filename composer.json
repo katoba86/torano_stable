@@ -2,7 +2,7 @@
   "name": "katoba/torano",
   "description": "Torano Application",
   "require": {
-    "php": ">=7.3.0",
+    "php": ">=8.1.0",
     "symfony/console": "*",
     "symfony/process": "*",
     "desarrolla2/cache":  "*",
@@ -16,7 +16,9 @@
     "symfony/phpunit-bridge": "^5.0",
     "phpunit/phpunit": "^9.4.0",
     "guzzlehttp/guzzle": "^6.5",
-    "geoip2/geoip2": "^2.11"
+    "geoip2/geoip2": "^2.11",
+    "spatie/ray": "^1.41",
+    "league/config": "^1.2"
   },
   "autoload": {
     "psr-0": {
@@ -25,7 +27,5 @@
     "psr-4": {
       "Tests\\": "tests/"
     }
-  },
-  "require-dev": {
   }
 }

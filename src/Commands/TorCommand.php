@@ -45,8 +45,10 @@ class TorCommand extends Command
         $this->addArgument('country', InputArgument::OPTIONAL, 'COUNTRY - if set - toranos wont be reset');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
+
+
         $this->numServer = (int)$input->getArgument('num');
         $this->out = $output;
         if ($input->getArgument('country') !== null) {

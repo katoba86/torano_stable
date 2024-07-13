@@ -10,9 +10,10 @@ namespace Classes;
 
 
 use Classes\Torano\Torano;
+use Classes\Torano\ToranoException;
 use Classes\Torano\TorConfig;
 use Classes\Torano\TorElement;
-use Classes\Vpn\VpnConfig;
+use \Psr\SimpleCache\InvalidArgumentException;
 
 use Desarrolla2\Cache\Predis as PredisCache;
 use Predis\Client as PredisClient;
@@ -78,15 +79,6 @@ class Helper
 
     }
 
-    /**
-     * @return array|null
-     * @throws \Psr\SimpleCache\InvalidArgumentException
-     */
-    public static function getVpnArray():array
-    {
-        $cached = (Helper::getCache())->get(VpnConfig::CACHE_VPN_CONNECTION_KEY);
-        return (!is_array($cached))?[]:$cached;
-    }
 
     /**
      * @return array|null|TorElement[]
@@ -177,6 +169,7 @@ class Helper
     }
     public static function addSudo():string
     {
+        if((bool)getenv("sudo")===false){return "";}
         $pass = getenv('pass');
         return "echo '".$pass."' | sudo -S ";
     }
@@ -239,6 +232,28 @@ class Helper
             $torElement->numFailed+=1;
         }
 
+    }
+
+
+    /**
+     * @return TorElement
+     * @throws ToranoException|
+     */
+    public static function getRandomTorProxy():TorElement{
+
+        try{
+            $proxies = (self::getCache())->get(TorConfig::SAVE_ARRAY);
+        }catch (InvalidArgumentException $e){
+            throw new ToranoException("Cache:".$e->getMessage());
+        }
+        if(!is_array($proxies) || count($proxies)===0) {
+            throw new ToranoException('Cant get proxies');
+        }
+        $proxy =  $proxies[rand(0,count($proxies)-1)];
+        if(!($proxy instanceof TorElement)){
+            throw new ToranoException('Got data, but this is not a tor Proxy!');
+        }
+        return $proxy;
     }
 
     /**
