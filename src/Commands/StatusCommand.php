@@ -34,7 +34,7 @@ class StatusCommand extends Command
      * @return bool|int
      * @throws \Psr\SimpleCache\InvalidArgumentException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->out = $output;
 

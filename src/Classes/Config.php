@@ -12,14 +12,10 @@ namespace Classes;
 class Config
 {
 
-    const TYPE_DEFAULT = 2;
-
-    const TYPE_AUTO = 0;
-    const TYPE_VPN = 1;
     const TYPE_TOR = 2;
 
 
-    public $type = self::TYPE_AUTO;
+    public $type = self::TYPE_TOR;
 
     public $country = 'de';
     public $provider = 'auto';

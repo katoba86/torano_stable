@@ -1,130 +1,13 @@
 <?php
 
-use Classes\Config;
-use Classes\Connection;
-use Classes\Fetch;
+use Classes\Parse;
+use Classes\Torano\Torano;
+use League\Config\Exception\ValidationException as ConfigValidationException;
 
 set_time_limit(30);
 require __DIR__.'/vendor/autoload.php';
 error_reporting(E_ALL);
 ini_set("display_errors","on");
-
-
-
-
-
-
-
-
-class Torano{
-
-    /**
-     * @var array
-     */
-    private $inputJSON;
-
-    /**
-     * @var Config
-     */
-    private $config;
-
-
-    /**
-     * @var string
-     */
-    private $response = "";
-
-    public function __construct($input){
-        $this->inputJSON = $input;
-    }
-
-    public function run(){
-        if(!$this->check()){
-            return $this->response;
-        }
-
-       $this->config = $this->getConfig($this->inputJSON);
-
-        $this->fetch = $this->getFetch($this->inputJSON["fetch"]);
-
-        return (new Connection($this->config,$this->fetch))->run();
-
-    }
-
-    private function getFetch($input): Fetch{
-        $fetch = new Fetch();
-
-        (isset($input["type"]))?$fetch->setMethod($input["type"]):null;
-        (isset($input["url"]))?$fetch->setUrl($input["url"]):null;
-        (isset($input["headers"]))?$fetch->setHeaders($input["headers"]):null;
-        (isset($input["data"]))?$fetch->setData($input["data"]):null;
-        (isset($input["contentType"]))?$fetch->setContentType($input["contentType"]):null;
-
-        return $fetch;
-    }
-
-
-    private function getConfig($input):Config
-    {
-        if(!isset($input["config"])){
-            return new Config();
-        }else{
-
-            $config = new Config();
-            $config->type = Config::TYPE_TOR;
-
-
-            (isset($input["config"]["country"]))    ?$config->country   = $input["config"]["country"]:  null;
-            (isset($input["config"]["provider"]))   ?$config->provider  = $input["config"]["provider"]: null;
-            (isset($input["config"]["retry"]))      ?$config->retry     = $input["config"]["retry"]:    null;
-            (isset($input["config"]["timeout"]))    ?$config->timeout   = $input["config"]["timeout"]:  null;
-            return $config;
-        }
-    }
-
-
-
-
-    public function check(){
-        if(!isset($this->inputJSON["fetch"]) || !is_array($this->inputJSON["fetch"])){
-            $this->response="Wrong structure";
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * @return string
-     */
-    public function getResponse()
-    {
-        return $this->response;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getInputJSON()
-    {
-        return $this->inputJSON;
-    }
-
-    /**
-     * @param mixed $inputJSON
-     * @return Torano
-     */
-    public function setInputJSON($inputJSON)
-    {
-        $this->inputJSON = $inputJSON;
-        return $this;
-    }
-
-
-
-
-
-
-}
 
 
 try {
@@ -142,4 +25,22 @@ if(!is_array($data)){
 }
 
 
-echo (new Torano($data))->run();
+
+$parse = new Parse($data);
+$torano = new Torano();
+try{
+$torano->init($parse->getConfig(),$parse->getFetch());
+}catch (ConfigValidationException $e){
+    echo json_encode([
+        'error'=>$e->getMessage(),
+        'type'=>get_class($e)
+    ]);exit;
+}
+try {
+    echo $torano->getData();
+}catch (\Exception $e){
+    echo $e->getMessage();exit;
+}
+
+
+

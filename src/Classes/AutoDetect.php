@@ -94,9 +94,10 @@ class AutoDetect
 
     }
 
-    private function checkRedis($redisPort=6379)
+    private function checkRedis(int $redisPort=6379):bool
     {
         $command1 = `netstat -antpl  |grep tcp | grep $redisPort`;
+        if(null === $command1){return false;}
         if(strpos(strtolower($command1), ':'.$redisPort) !== false){
 
 
@@ -121,12 +122,13 @@ class AutoDetect
     }
 
 
-    public static function output($error = false,$message)
+    public static function output(bool $error = false,string  $message=""):void
     {
         echo ($error)?"\xE2\x9C\x98":"\xE2\x9C\x94"."\t".$message."\n";
     }
 
-    private function checkControlIp($ip)
+
+    private function checkControlIp(string $ip):bool
     {
 
         try {
