@@ -104,9 +104,12 @@ class Helper
 
        if($cacheName === 'redis'){
 
-           $client = new PredisClient('tcp://localhost:6379');
-           $adapter = new PredisCache($client);
+           $host = getenv("cacheHost") ?? 'localhost';
+           $port = (int) getenv("cachePort") ?? 6379;
 
+
+           $client = new PredisClient('tcp://'.$host.':'.$port);
+           $adapter = new PredisCache($client);
 
        }elseif($cacheName === 'file'){
            $cacheDir = '/tmp';

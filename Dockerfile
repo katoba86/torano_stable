@@ -1,2 +1,2 @@
-FROM  kooldev/php:8.3-nginx
-RUN apk add jq tor redis
+FROM  kooldev/php:8.3-nginx-prod
+RUN apk add jq tor
