@@ -14,7 +14,10 @@ ehthumbs.db
 .env
 # Folder config file
 Desktop.ini
-
+dump.rdb
+phpunit.xml.bak
+.phpunit.result.cache
+composer.lock
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 
