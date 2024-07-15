@@ -6,6 +6,8 @@ services:
       context: ./
       dockerfile: ./Dockerfile
     container_name: torano
+    environment:
+      NGINX_ROOT: '/app'
     ports:
       - "2043:80"
     tty: true

@@ -5,15 +5,14 @@ namespace Classes;
 
 class Fetch
 {
-    private $method = "GET";
+    private string $method = "GET";
 
-    private $contentType = "";
 
-    private $url = "";
+    private string $url = "";
 
     private $data = null;
 
-    private $headers = [];
+    private array $headers = [];
 
     /**
      * @return string
@@ -37,23 +36,6 @@ class Fetch
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getContentType(): string
-    {
-        return $this->contentType;
-    }
-
-    /**
-     * @param string $contentType
-     * @return Fetch
-     */
-    public function setContentType(string $contentType): Fetch
-    {
-        $this->contentType = $contentType;
-        return $this;
-    }
 
     /**
      * @return string
@@ -85,7 +67,7 @@ class Fetch
      * @param null $data
      * @return Fetch
      */
-    public function setData($data)
+    public function setData($data):Fetch
     {
         $this->data = $data;
         return $this;
@@ -105,30 +87,31 @@ class Fetch
      */
     public function setHeaders(array $headers): Fetch
     {
+        if(!array_is_list($headers)){
+            $this->headers = [];
+            foreach ($headers as $key => $v) {
+                $this->headers[] = $key . ": " . $v;
+            }
+            return $this;
+        }
         $this->headers = $headers;
         return $this;
     }
 
 
-    public function addHeader($key,$value):Fetch
+    public function getCacheKey():string
     {
-        if(!is_array($this->headers)){$this->headers=[];}
-        $this->headers[$key] = $value;
-        return $this;
-    }
+        $h = $this->headers;
+        sort($h);
+        $h = md5(json_encode($h));
+        return md5(implode("_",[
+            $this->method,
+            $this->url,
+            $h,
+            $this->data
+        ]));
 
-    public static function buildHeaders(array $headers):array
-    {
-        if(is_array($headers) && count($headers)>=1){
 
-            $oldHeaders=$headers;
-            $headers=[];
-            foreach($oldHeaders as $key=>$value){
-                $headers[]=$key.": ".$value;
-            }
-            return $headers;
-        }
-        return [];
     }
 
 

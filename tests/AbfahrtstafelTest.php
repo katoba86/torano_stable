@@ -14,13 +14,6 @@ class AbfahrtstafelTest extends TestRunner
 {
 
 
-    private $postData = '{"verkehrsmittel":["HOCHGESCHWINDIGKEITSZUEGE","INTERCITYUNDEUROCITYZUEGE","INTERREGIOUNDSCHNELLZUEGE","NAHVERKEHRSONSTIGEZUEGE","SBAHNEN","BUSSE","UBAHN","STRASSENBAHN","ANRUFPFLICHTIGEVERKEHRE"],"datum":"2024-07-13","ursprungsBahnhofId":"A=1@O=Westentor, Hamm (Westf)@X=7813510@Y=51680100@U=80@L=902501@B=1@P=1720121116@","anfragezeit":"15:00"}';
-    private $headers = [
-        'content-type: application/x.db.vendo.mob.bahnhofstafeln.v2+json',
-        'accept: application/x.db.vendo.mob.bahnhofstafeln.v2+json',
-        'x-correlation-id: BF275FF2-55A6-4240-91C3-CF0ECAF51B27_2BA4B348-D6A5-435B-8528-828C3959E54F',
-    ];
-    private $url = 'https://app.vendo.noncd.db.de/mob/bahnhofstafel/abfahrt';
 
     /**
      * @test
@@ -61,16 +54,15 @@ class AbfahrtstafelTest extends TestRunner
                 "data"=>$this->postData,
             ]
         ];
-        ray(json_encode($payload));
 
         $parse = new Parse($payload);
         $torano = new Torano();
         $torano->init($parse->getConfig(),$parse->getFetch());
         $data = $torano->getData();
-        ray($data);
         $this->assertTrue(strlen($data)>500 && preg_match("/Bus/",$data));
-
     }
+
+
 
 
 

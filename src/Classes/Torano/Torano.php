@@ -15,6 +15,7 @@ use Classes\Fetch;
 use Classes\Helper;
 use Desarrolla2\Cache;
 use Faker\Factory;
+use Psr\SimpleCache\InvalidArgumentException;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
 
@@ -83,8 +84,16 @@ final class Torano
 
 
 
+
     public function getData()
     {
+
+        if($this->cacheExists()){
+
+            return $this->getCachedData();
+        }
+
+
         $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_CONNECTTIMEOUT => $this->currentProxy->timeout ?? 5,
@@ -118,6 +127,7 @@ final class Torano
             return null;
         }
         $this->success = true;
+        $this->setCache($output);
         $this->finish();
         return $output;
 
@@ -178,7 +188,8 @@ final class Torano
                 $this->proxys[$index] = $proxy;
             }
         }
-        $this->cache->set(TorConfig::SAVE_ARRAY,$this->proxys,TorConfig::SAVE_TIME);
+        $this->cache->set(TorConfig::SAVE_ARRAY, $this->proxys, TorConfig::SAVE_TIME);
+
     }
 
 
@@ -195,7 +206,7 @@ final class Torano
         $list = [];
         foreach($proxys as $index=>$proxy){
             /*@var $proxy TorElement */
-            if($proxy->getStatus()!==TorElement::STATUS_ERR) {
+            if($proxy->getStatus()!== Element::STATUS_ERR) {
 
                 if(strtoupper($proxy->getCountry()) === strtoupper($this->config->country)) {
                     $list[$index] = $proxy->getNumSuccess();
@@ -208,6 +219,33 @@ final class Torano
         return $proxys[$keys[0]];
 
 
+    }
+
+
+    private function setCache($data,?int $cacheTime = null):void{
+        try {
+            (Helper::getCache())->set($this->fetch->getCacheKey(),$data,$cacheTime);
+        } catch (InvalidArgumentException $e) {
+            return;
+        }
+    }
+
+    private function cacheExists():bool
+    {
+        try {
+            return (Helper::getCache())->has($this->fetch->getCacheKey());
+        } catch (InvalidArgumentException $e) {
+            return false;
+        }
+    }
+
+    private function getCachedData():mixed
+    {
+        try {
+            return (Helper::getCache())->get($this->fetch->getCacheKey());
+        } catch (InvalidArgumentException $e) {
+            return null;
+        }
     }
 
 }
